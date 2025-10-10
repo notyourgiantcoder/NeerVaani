@@ -1,0 +1,37 @@
+# Alternative Requirements (SQLite instead of PostgreSQL)
+# This version uses SQLite instead of PostgreSQL to avoid compilation issues
+
+# Core web framework
+flask==3.0.3
+flask-cors==4.0.0
+
+# Database connectivity (SQLite - no compilation needed)
+# psycopg2-binary==2.9.9  # Commented out - requires C++ tools
+
+# Use newer numpy version that has pre-compiled wheels for Python 3.13
+numpy>=1.24.0
+
+# Machine Learning and AI
+sentence-transformers>=3.0.1
+google-generativeai>=0.8.3
+
+# Geographic calculations
+geopy>=2.4.1
+
+# Environment variables
+python-dotenv>=1.0.1
+
+# Frontend dependencies
+streamlit>=1.28.0
+pandas>=2.0.0
+plotly>=5.15.0
+plotly-express>=0.4.1
+sqlalchemy>=2.0.0
+Pillow>=10.0.0
+requests>=2.31.0
+
+# Scientific data handling
+xarray>=2023.1.0
+
+# Vector database (optional)
+qdrant-client>=1.6.0
