@@ -10,25 +10,20 @@ def show_map():
     # Custom CSS for map page font colors
     st.markdown("""
     <style>
-    /* Main text color for map page */
-    .stApp {
-        color: #ffffff;  /* Change this to your desired main text color */
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    :root { --text:#f4f8ff; --muted:#cfe0ff; }
+
+    .stApp { font-family:'Inter', sans-serif; color: var(--text); }
     
     /* Title colors */
-    h1, h2, h3 {
-        color: #ffffff !important;  /* Change this for heading colors */
-    }
+    h1, h2, h3 { color: var(--text) !important; }
     
     /* Selectbox and input labels */
-    .stSelectbox label, .stSlider label, .stCheckbox label {
-        color: #ffffff !important;  /* Change this for control labels */
-    }
+    .stSelectbox label, .stSlider label, .stCheckbox label { color: var(--muted) !important; }
     
     /* Metric text colors */
-    .metric-label {
-        color: #ffffff !important;  /* Change this for metric labels */
-    }
+    .metric-label { color: var(--text) !important; }
     </style>
     """, unsafe_allow_html=True)
   

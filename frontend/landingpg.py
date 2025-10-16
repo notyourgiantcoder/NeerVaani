@@ -19,11 +19,15 @@ if 'page' not in st.session_state:
 # Styling
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
 .stApp {
-    background-image: url('https://i.pinimg.com/736x/86/f8/4b/86f84bf00e07cc71f76151118f764234.jpg');
+    background: linear-gradient(175deg, rgba(2, 18, 42, 0.85), rgba(3, 32, 71, 0.85)), url('https://i.pinimg.com/736x/86/f8/4b/86f84bf00e07cc71f76151118f764234.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed; 
+    color: #f4f8ff;
+    font-family: 'Inter', sans-serif;
 }
 
 .hero-title { 
@@ -31,26 +35,26 @@ st.markdown("""
     font-size:70px; 
     margin-top: 10px;
     margin-left:170px;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    color: #e6f0ff;
+    text-shadow: 0 8px 20px rgba(0,0,0,0.55);
 }
 
 .title { 
     text-align:left; 
     font-size:100px; 
     margin-top:0px;
-    color: white;
+    color: #f4f8ff;
     margin-left:150px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    text-shadow: 0 10px 28px rgba(0,0,0,0.6);
 }
 
 .hero-sub { 
     text-align:left;
     font-size:30px; 
     margin-top:20px;
-    color: white;
+    color: #dbe9ff;
     margin-left:150px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    text-shadow: 0 6px 16px rgba(0,0,0,0.45);
 }
 
 /* Style for the button container */
@@ -58,25 +62,22 @@ st.markdown("""
     display: flex;
     justify-content: center;
     margin-top: 60px;
-    
 }
 
 .stButton > button {
     padding: 20px 60px;
     font-size: 80px;
     border-radius: 50px;
-    background-color: #001528;
-    color: white;
-    border: none;
+    background: linear-gradient(135deg, #0b2b52, #104173);
+    color: #f5f9ff;
+    border: 1px solid rgba(187, 215, 255, 0.4);
     cursor: pointer;
     transition: all 0.3s ease;
     margin-left:150px;
+    box-shadow: 0 18px 40px rgba(4, 13, 30, 0.6);
 }
 
-.stButton > button:hover {
-  
-    transform: scale(1.03);
-}
+.stButton > button:hover { transform: scale(1.03); background: linear-gradient(135deg, #0f3965, #17528d); border: 1px solid rgba(214,232,255,0.6); }
 </style>
 """, unsafe_allow_html=True)
 

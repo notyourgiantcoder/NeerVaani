@@ -172,10 +172,12 @@ def show_chatbot_ui():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
+    :root { --text:#f4f8ff; --muted:#cfe0ff; --card-border: rgba(196, 220, 255, 0.28); }
+    
     .stApp {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(160deg, #081a34 0%, #173b6c 55%, #1f4d88 100%);
         font-family: 'Inter', sans-serif;
-        color: white;  /* Change this to your desired main text color */
+        color: var(--text);
     }
     
     #MainMenu {visibility: hidden;}
@@ -191,17 +193,16 @@ def show_chatbot_ui():
     .main-title {
         font-size: 3rem;
         font-weight: 700;
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #8db9ff, #5a7dff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin-bottom: 0.5rem;
-    
     }
     
     .subtitle {
         font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.8);  /* Change this for subtitle color */
+        color: rgba(234, 242, 255, 0.85);
         font-weight: 400;
     }
     
@@ -211,122 +212,92 @@ def show_chatbot_ui():
         padding: 0 1rem;
     }
     
-    .stChatMessage {
-        margin: 1.5rem 0 
-        padding: 0 
-    }
+    .stChatMessage { margin: 1.5rem 0; padding: 0; }
     
-    .stChatMessage[data-testid="chat-message-user"] {
-        display: flex 
-        justify-content: flex-end 
-        align-items: flex-start 
-    }
+    .stChatMessage[data-testid="chat-message-user"] { display:flex; justify-content:flex-end; align-items:flex-start; }
     
     .stChatMessage[data-testid="chat-message-user"] > div {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 
-        color: white;  /* Change this for user message text color */
-        padding: 1rem 1.5rem 
-        border-radius: 20px 20px 5px 20px 
-        max-width: 70% 
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) 
-        margin-left: auto 
+        background: linear-gradient(135deg, #6c8cff 0%, #4f68ff 100%);
+        color: var(--text);
+        padding: 1rem 1.5rem;
+        border-radius: 20px 20px 5px 20px;
+        max-width: 70%;
+        box-shadow: 0 12px 30px rgba(37, 71, 151, 0.45);
+        margin-left: auto;
     }
     
-    .stChatMessage[data-testid="chat-message-assistant"] {
-        display: flex 
-        justify-content: flex-start 
-        align-items: flex-start 
-    }
+    .stChatMessage[data-testid="chat-message-assistant"] { display:flex; justify-content:flex-start; align-items:flex-start; }
     
     .stChatMessage[data-testid="chat-message-assistant"] > div {
-        background: rgba(255, 255, 255, 0.1) 
-        color: white;  /* Change this for assistant message text color */
-        padding: 1rem 1.5rem 
-        border-radius: 20px 20px 20px 5px 
-        max-width: 80% 
-        backdrop-filter: blur(10px) 
-        border: 1px solid rgba(255, 255, 255, 0.1) 
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) 
-        margin-right: auto 
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text);
+        padding: 1rem 1.5rem;
+        border-radius: 20px 20px 20px 5px;
+        max-width: 80%;
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 12px 32px rgba(7, 15, 35, 0.4);
+        margin-right: auto;
     }
     
     .thinking-container {
-        background: rgba(255, 255, 255, 0.1) 
-        color: white 
-        padding: 1rem 1.5rem 
-        border-radius: 20px 20px 20px 5px 
-        max-width: 80% 
-        backdrop-filter: blur(10px) 
-        border: 1px solid rgba(255, 255, 255, 0.1) 
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) 
-        margin-right: auto 
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text);
+        padding: 1rem 1.5rem;
+        border-radius: 20px 20px 20px 5px;
+        max-width: 80%;
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 12px 32px rgba(7, 15, 35, 0.4);
+        margin-right: auto;
     }
     
-    .thinking-text {
-        color: rgba(255, 255, 255, 0.8);
-        font-style: italic;
-    }
+    .thinking-text { color: rgba(234, 242, 255, 0.85); font-style: italic; letter-spacing: .02em; }
     
-    .stChatInput > div {
-        background: rgba(255, 255, 255, 0.1) 
-        backdrop-filter: blur(10px) 
-        border: 1px solid rgba(255, 255, 255, 0.2) 
-        border-radius: 25px 
-        max-width: 900px 
-        margin: 0 auto 
-    }
+    /* Chat input bar: clean white pill with circular send button */
+    .stChatInput { padding-bottom: max(8px, env(safe-area-inset-bottom)); margin-top: 6px; }
+    
+    .stChatInput > div { background: transparent; border: none; border-radius: 0; max-width: 900px; margin: 0.6rem auto 0.2rem auto; box-shadow: none; }
+    
+    .stChatInput:focus-within > div { transform: translateY(-1px); }
     
     .stChatInput textarea {
-        background: transparent 
-        color: white 
-        border: none 
-        font-family: 'Inter', sans-serif 
-        padding: 1rem 1.5rem 
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #d0d7e2;
+        border-radius: 9999px;
+        font-family: 'Inter', sans-serif;
+        padding: 0.9rem 1.2rem;
+        min-height: 48px;
+        font-size: 0.98rem;
+        transition: box-shadow 160ms ease, border-color 160ms ease;
     }
+    .stChatInput textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
     
-    .stChatInput textarea::placeholder {
-        color: rgba(255, 255, 255, 0.6) 
-    }
+    .stChatInput textarea::placeholder { color: #6b7280; opacity: 0.9; }
     
     .stChatInput button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 
-        border: none 
-        border-radius: 50% 
-        color: white 
-        width: 40px 
-        height: 40px 
-        margin: 0.5rem 
+        background: linear-gradient(135deg, #6c8cff 0%, #4f68ff 100%);
+        border: none;
+        border-radius: 50%;
+        color: #ffffff;
+        width: 40px;
+        height: 40px;
+        margin: 0.4rem;
+        box-shadow: 0 8px 16px rgba(37, 71, 151, 0.28);
+        transition: transform 100ms ease, filter 120ms ease, box-shadow 160ms ease;
     }
+    .stChatInput button:hover { filter: brightness(1.05); box-shadow: 0 10px 20px rgba(37, 71, 151, 0.35); }
+    .stChatInput button:active { transform: scale(0.96); }
+    .stChatInput button:disabled { filter: grayscale(0.2) brightness(0.92); box-shadow: none; }
     
-    .metadata-container {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        border-left: 3px solid #667eea;
-    }
+    .metadata-container { margin-top: 1rem; padding: 1rem; background: rgba(5, 25, 55, 0.7); border-radius: 12px; border-left: 3px solid #6c8cff; box-shadow: 0 10px 24px rgba(5, 12, 28, 0.4); }
     
-    .metadata-item {
-        display: inline-block;
-        margin: 0.25rem 1rem 0.25rem 0;
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.8);
-    }
+    .metadata-item { display: inline-block; margin: 0.25rem 1rem 0.25rem 0; font-size: 0.9rem; color: rgba(234, 242, 255, 0.85); }
     
-    .stChatMessage img {
-        display: none 
-    }
+    .stChatMessage img { display: none; }
     
-    @media (max-width: 768px) {
-        .main-title {
-            font-size: 2rem;
-        }
-        
-        .stChatMessage[data-testid="chat-message-user"] > div,
-        .stChatMessage[data-testid="chat-message-assistant"] > div {
-            max-width: 90% 
-        }
-    }
+    @media (max-width: 768px) { .main-title { font-size: 2rem; } .stChatMessage[data-testid="chat-message-user"] > div, .stChatMessage[data-testid="chat-message-assistant"] > div { max-width: 90%; } }
     </style>
     """, unsafe_allow_html=True)
 

@@ -6,6 +6,7 @@ Standalone FloatChat API Server - No External Dependencies
 from flask import Flask, request, jsonify
 import random
 import json
+import re
 from datetime import datetime
 
 app = Flask(__name__)
@@ -18,63 +19,130 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
-def generate_realistic_profile(lat, lon, query_lower):
-    """Generate scientifically accurate oceanographic profiles based on location"""
+def _build_rng(lat: float, lon: float, query_lower: str) -> random.Random:
+    """Create a deterministic RNG so similar queries vary but are stable per query/location."""
+    seed = hash((round(lat, 2), round(lon, 2), query_lower)) & 0xFFFFFFFF
+    return random.Random(seed)
+
+def _parse_location_from_query(query_lower: str):
+    """Try to extract latitude/longitude from the query text.
+    Supports patterns like 'lat 12.9 lon 77.6', 'latitude: 12.9, longitude: 77.6',
+    or compact '12.9N 77.6E'. Returns (lat, lon) or None.
+    """
+    # Pattern 1: lat ... lon ...
+    m1 = re.search(r"lat(?:itude)?\s*[:=]?\s*(-?\d{1,2}(?:\.\d+)?)", query_lower)
+    m2 = re.search(r"lon(?:gitude)?\s*[:=]?\s*(-?\d{1,3}(?:\.\d+)?)", query_lower)
+    if m1 and m2:
+        try:
+            lat = float(m1.group(1))
+            lon = float(m2.group(1))
+            if -90 <= lat <= 90 and -180 <= lon <= 180:
+                return lat, lon
+        except ValueError:
+            pass
+
+    # Pattern 2: 12.9N 77.6E (or S/W)
+    m3 = re.search(r"(-?\d{1,2}(?:\.\d+)?)([ns])\s+(-?\d{1,3}(?:\.\d+)?)([ew])", query_lower)
+    if m3:
+        lat = float(m3.group(1)) * (1 if m3.group(2) == 'n' else -1)
+        lon = float(m3.group(3)) * (1 if m3.group(4) == 'e' else -1)
+        if -90 <= lat <= 90 and -180 <= lon <= 180:
+            return lat, lon
+
+    return None
+
+def _infer_intent(query_lower: str):
+    """Infer user's focus parameter and mode to diversify responses."""
+    temp_kw = ["temp", "temperature", "thermocline", "warm", "cold"]
+    sal_kw = ["salinity", "salt", "halocline"]
+    oxy_kw = ["oxygen", "o2", "dissolved oxygen"]
+    trend_kw = ["trend", "increase", "decrease", "change", "over time", "season", "monthly", "yearly"]
+    extreme_kw = ["max", "min", "peak", "highest", "lowest", "anomaly", "anomalies"]
+
+    primary = "profile"
+    if any(k in query_lower for k in temp_kw):
+        primary = "temperature"
+    elif any(k in query_lower for k in sal_kw):
+        primary = "salinity"
+    elif any(k in query_lower for k in oxy_kw):
+        primary = "oxygen"
+
+    if any(k in query_lower for k in trend_kw):
+        mode = "trend"
+    elif any(k in query_lower for k in extreme_kw):
+        mode = "extremes"
+    else:
+        mode = "structure"
+
+    detail = "standard"
+    if "detailed" in query_lower or "high-resolution" in query_lower:
+        detail = "detailed"
+
+    return {"primary": primary, "mode": mode, "detail": detail}
+
+def generate_realistic_profile(lat, lon, query_lower, rng: random.Random = None):
+    """Generate scientifically plausible oceanographic profiles based on location and intent."""
+    if rng is None:
+        rng = _build_rng(lat, lon, query_lower)
     
     # Determine regional oceanographic characteristics
     if abs(lat) <= 10:  # Tropical
-        surface_temp = random.uniform(26, 29)
-        surface_salinity = random.uniform(34.5, 35.5)
+        surface_temp = rng.uniform(26, 29)
+        surface_salinity = rng.uniform(34.5, 35.5)
         thermocline_strength = 0.18  # Strong thermocline
     elif 10 < abs(lat) <= 30:  # Subtropical
-        surface_temp = random.uniform(22, 27)
-        surface_salinity = random.uniform(35.0, 36.5)
+        surface_temp = rng.uniform(22, 27)
+        surface_salinity = rng.uniform(35.0, 36.5)
         thermocline_strength = 0.14
     elif 30 < abs(lat) <= 50:  # Temperate
-        surface_temp = random.uniform(15, 22)
-        surface_salinity = random.uniform(34.0, 35.5)
+        surface_temp = rng.uniform(15, 22)
+        surface_salinity = rng.uniform(34.0, 35.5)
         thermocline_strength = 0.10
     else:  # Polar/Subpolar
-        surface_temp = random.uniform(2, 10)
-        surface_salinity = random.uniform(33.5, 34.5)
+        surface_temp = rng.uniform(2, 10)
+        surface_salinity = rng.uniform(33.5, 34.5)
         thermocline_strength = 0.06
     
     # Regional modifications
     if "arabian" in query_lower or (50 < lon < 80 and 10 < lat < 25):
-        surface_temp += random.uniform(0.5, 2.0)  # Warmer Arabian Sea
-        surface_salinity += random.uniform(0.3, 0.8)  # Higher salinity due to evaporation
+        surface_temp += rng.uniform(0.5, 2.0)  # Warmer Arabian Sea
+        surface_salinity += rng.uniform(0.3, 0.8)  # Higher salinity due to evaporation
     elif "pacific" in query_lower and -180 < lon < -80:
-        surface_temp += random.uniform(-1.0, 1.0)  # Pacific variability
+        surface_temp += rng.uniform(-1.0, 1.0)  # Pacific variability
         if lat < 10:  # Equatorial Pacific
-            surface_salinity -= random.uniform(0.2, 0.5)  # Equatorial freshening
+            surface_salinity -= rng.uniform(0.2, 0.5)  # Equatorial freshening
     
     # Generate depth levels with realistic oceanographic structure
     depths = []
-    pressures = [5, 15, 30, 50, 75, 100, 125, 150]  # More detailed profile
+    # Choose depth resolution based on query detail
+    if any(k in query_lower for k in ["detailed", "high-res", "high resolution"]):
+        pressures = [5, 10, 15, 25, 35, 50, 65, 80, 100, 125, 150]
+    else:
+        pressures = [5, 15, 30, 50, 75, 100, 125, 150]
     
     for i, pressure in enumerate(pressures):
         # Temperature: surface mixed layer + thermocline + deep water
         if pressure <= 20:  # Surface mixed layer
-            temp = surface_temp + random.uniform(-0.5, 0.5)
+            temp = surface_temp + rng.uniform(-0.5, 0.5)
         elif pressure <= 100:  # Main thermocline
             depth_factor = (pressure - 20) / 80
             temp_drop = thermocline_strength * 80 * depth_factor
-            temp = surface_temp - temp_drop + random.uniform(-0.8, 0.8)
+            temp = surface_temp - temp_drop + rng.uniform(-0.8, 0.8)
         else:  # Deep water
             temp = surface_temp - (thermocline_strength * 80) - (pressure - 100) * 0.02
-            temp += random.uniform(-0.5, 0.5)
+            temp += rng.uniform(-0.5, 0.5)
         
         temp = max(temp, 1.5)  # Ocean minimum temperature
         
         # Salinity: surface layer + halocline + deep water
         if pressure <= 30:
-            salinity = surface_salinity + random.uniform(-0.1, 0.1)
+            salinity = surface_salinity + rng.uniform(-0.1, 0.1)
         elif pressure <= 80:
             # Subsurface salinity maximum common in many regions
-            salinity = surface_salinity + 0.1 + random.uniform(-0.15, 0.15)
+            salinity = surface_salinity + 0.1 + rng.uniform(-0.15, 0.15)
         else:
             # Deep water salinity
-            salinity = surface_salinity - 0.05 + random.uniform(-0.2, 0.2)
+            salinity = surface_salinity - 0.05 + rng.uniform(-0.2, 0.2)
         
         salinity = max(min(salinity, 37.5), 32.0)  # Realistic ocean bounds
         
@@ -202,24 +270,31 @@ def handle_query():
             "indian ocean": (0.0, 78.0)
         }
         
-        # Find location
+        # Find location: place name or coordinates
         query_lower = query.lower()
         lat, lon = 0.0, 0.0
         location_desc = "in the ocean"
-        
-        for place, coords in locations.items():
-            if place in query_lower:
-                lat, lon = coords
-                location_desc = f"near {place.title()}"
-                break
+
+        coord = _parse_location_from_query(query_lower)
+        if coord:
+            lat, lon = coord
+            location_desc = f"at {lat:.3f}°N, {lon:.3f}°E"
         else:
-            # Random ocean location
-            lat = round(random.uniform(-60, 60), 3)
-            lon = round(random.uniform(-180, 180), 3)
-            location_desc = f"at {lat}°N, {lon}°E"
+            for place, coords in locations.items():
+                if place in query_lower:
+                    lat, lon = coords
+                    location_desc = f"near {place.title()}"
+                    break
+            else:
+                # Random ocean location (deterministic per query)
+                rng = _build_rng(0, 0, query_lower)
+                lat = round(rng.uniform(-60, 60), 3)
+                lon = round(rng.uniform(-180, 180), 3)
+                location_desc = f"at {lat}°N, {lon}°E"
         
         # Generate realistic oceanographic depth profile
-        depths = generate_realistic_profile(lat, lon, query_lower)
+        rng = _build_rng(lat, lon, query_lower)
+        depths = generate_realistic_profile(lat, lon, query_lower, rng)
         
         # Advanced AI analysis with real oceanographic insights
         explanation = generate_detailed_analysis(depths, location_desc, lat, lon, query)

@@ -9,25 +9,38 @@ def show_time_depth_plot():
     # Custom CSS for time-depth plot page font colors
     st.markdown("""
     <style>
-    /* Main text color for time-depth page */
-    .stApp {
-        color: #ffffff;  /* Change this to your desired main text color */
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+            :root {
+                --bg-overlay: rgba(1, 18, 38, 0.70);
+                --front-img: url('https://images.unsplash.com/photo-1604599340287-2042e85a3802?q=80&w=1400&auto=format&fit=crop');
+                --text: #f4f8ff;
+                --muted: #cfe0ff;
+                --card-border: rgba(196, 220, 255, 0.28);
+            }
+
+            .stApp {
+                    font-family: 'Inter', sans-serif;
+                    background:
+                            linear-gradient(180deg, var(--bg-overlay), var(--bg-overlay)),
+                            var(--front-img);
+                    background-size: cover;
+                    background-position: center;
+                    background-attachment: fixed;
+                    color: var(--text);
+            }
     
     /* Title colors */
-    h1, h2, h3 {
-        color: #ffffff !important;  /* Change this for heading colors */
-    }
+    h1, h2, h3 { color: var(--text) !important; }
     
     /* Control panel labels */
-    .stSelectbox label, .stDateInput label, .stNumberInput label {
-        color: #ffffff !important;  /* Change this for input labels */
-    }
+    .stSelectbox label, .stDateInput label, .stNumberInput label { color: var(--muted) !important; font-weight: 600; }
     
     /* Section headers in controls */
-    .stMarkdown h4, .stMarkdown strong {
-        color: #ffffff !important;  /* Change this for section headers */
-    }
+    .stMarkdown h4, .stMarkdown strong { color: var(--text) !important; }
+
+    /* Minor containers */
+    .plot-container { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 12px; padding: .75rem; }
     </style>
     """, unsafe_allow_html=True)
     conn= sqlite3.connect("dummy.db")
