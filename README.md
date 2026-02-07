@@ -1,19 +1,6 @@
 # 🌊 Neer Vaani - AI-Powered Ocean Data Explorer
 
-<div align="center">
 
-![Neer Vaani Logo](frontend/FloatChat.png)
-
-**Where Data Meets the Deep — Intelligent Ocean Data Analysis Made Simple**
-
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.50+-red.svg)](https://streamlit.io)
-[![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)](https://flask.palletsprojects.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-</div>
-
----
 
 ## What is Neer Vaani?
 
